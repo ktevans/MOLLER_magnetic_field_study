@@ -1,0 +1,149 @@
+# This must be called before initialize
+/remoll/geometry/setfile geometry/mollerMother.gdml
+/remoll/parallel/setfile geometry/mollerParallel.gdml
+
+/remoll/physlist/parallel/enable
+
+# This must be explicitly called
+/run/initialize
+
+# Set target ladder position
+/control/execute macros/target/Optics1.mac #upstream foil
+#/control/execute macros/target/Optics2.mac #downstream foil
+#/control/execute macros/target/Optics3.mac #middle foil
+
+# Load magnetic fields
+#Symmetric field map
+/remoll/addfield map_directory/V2U.1a.50cm.parallel.txt
+/remoll/addfield map_directory/subcoil_2_3_3mm_full.txt
+#DipolePoint5Rand field map
+#/remoll/addfield map_directory/V2U.1a.50cm.parallel.real_asymmetric.txt
+#/remoll/addfield map_directory/subcoil_2_3_3mm_real_asymmetric.txt
+#Dipole3SameSC23 field map
+#/remoll/addfield map_directory/US_Asym_CP2B_pm_1_3.txt
+#/remoll/addfield map_directory/DS_Asym_CP2B_pm_1_3.txt
+#DipolePoint5SameSC23 field map
+#/remoll/addfield map_directory/US_CoilA-G_Asy_0dot5mm_case-II.txt
+#/remoll/addfield map_directory/DS_CoilA-G_Asy_0dot5mm_case-II.txt
+#DipolePoint5RandSC23 field map
+#/remoll/addfield map_directory/US_CoilA-G_Asy_0dot5mm_case-I.txt
+#/remoll/addfield map_directory/DS_CoilA-G_Asy_0dot5mm_case-I.txt
+
+# Raster and initial angle stuff
+/remoll/rasx 0 mm
+/remoll/rasy 0 mm
+/remoll/evgen/thmin 0.1 deg
+/remoll/evgen/thmax 2.0 deg
+/remoll/evgen/beam/origin 0 0 -7.5 m
+/remoll/evgen/beam/corrx 0.065
+/remoll/evgen/beam/corry 0.065
+
+#/remoll/evgen/set moller
+/remoll/evgen/set elasticC12
+#/remoll/evgen/set quasielasticC12
+#/remoll/evgen/set inelasticC12
+
+# Implement sieve
+/control/execute macros/sieve/sieve_in.mac
+
+#Set beam parameters
+/remoll/beamcurr 1 microampere
+/remoll/beamene 2.2 GeV #Pass-1
+#/remoll/beamene 4.4 GeV #Pass-2
+#/remoll/beamene 6.6 GeV #Pass-3
+#/remoll/beamene 8.8 GeV #Pass-4
+#/remoll/beamene 11 GeV #Pass-5
+
+#Set active detectors
+/remoll/SD/disable_all
+
+#main detector
+/remoll/SD/enable 28
+/remoll/SD/detect lowenergyneutral 28
+/remoll/SD/detect secondaries 28
+
+#GEM1
+/remoll/SD/enable 32
+/remoll/SD/detect lowenergyneutral 32
+/remoll/SD/detect secondaries 32
+
+#GEM2
+/remoll/SD/enable 33
+/remoll/SD/detect lowenergyneutral 33
+/remoll/SD/detect secondaries 33
+
+#GEM3
+/remoll/SD/enable 34
+/remoll/SD/detect lowenergyneutral 34
+/remoll/SD/detect secondaries 34
+
+#GEM4
+/remoll/SD/enable 35
+/remoll/SD/detect lowenergyneutral 35
+/remoll/SD/detect secondaries 35
+
+#sieve
+/remoll/SD/enable 270
+/remoll/SD/detect lowenergyneutral 270
+/remoll/SD/detect secondaries 270
+
+/remoll/SD/enable 9000
+/remoll/SD/detect lowenergyneutral 9000
+/remoll/SD/detect secondaries 9000
+
+/remoll/SD/enable 9001
+/remoll/SD/detect lowenergyneutral 9001
+/remoll/SD/detect secondaries 9001
+
+/remoll/SD/enable 51
+/remoll/SD/detect lowenergyneutral 51
+/remoll/SD/detect secondaries 51
+
+/remoll/SD/enable 54
+/remoll/SD/detect lowenergyneutral 54
+/remoll/SD/detect secondaries 54
+
+/remoll/SD/enable 57
+/remoll/SD/detect lowenergyneutral 57
+/remoll/SD/detect secondaries 57
+
+/remoll/SD/enable 5696
+/remoll/SD/detect lowenergyneutral 5696
+/remoll/SD/detect secondaries 5696
+
+/remoll/SD/enable 5697
+/remoll/SD/detect lowenergyneutral 5697
+/remoll/SD/detect secondaries 5697
+
+/remoll/SD/enable 70
+/remoll/SD/detect lowenergyneutral 70
+/remoll/SD/detect secondaries 70
+
+/remoll/SD/enable 71
+/remoll/SD/detect lowenergyneutral 71
+/remoll/SD/detect secondaries 71
+
+/remoll/SD/enable 72
+/remoll/SD/detect lowenergyneutral 72
+/remoll/SD/detect secondaries 72
+
+/remoll/SD/enable 73
+/remoll/SD/detect lowenergyneutral 73
+/remoll/SD/detect secondaries 73
+
+/remoll/SD/enable 74
+/remoll/SD/detect lowenergyneutral 74
+/remoll/SD/detect secondaries 74
+
+/remoll/SD/enable 5719
+/remoll/SD/detect lowenergyneutral 5719
+/remoll/SD/detect secondaries 5719
+
+/remoll/SD/enable 5720
+/remoll/SD/detect lowenergyneutral 5720
+/remoll/SD/detect secondaries 5720
+
+/remoll/target/print
+/process/list
+
+/run/beamOn 100000
