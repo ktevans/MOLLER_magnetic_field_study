@@ -5,6 +5,15 @@
 //
 // Do not include ".root" at the end of your input file.
 // This will output a slimmed down file with the same name as the input file but ending in "_slim"
+//
+// The slimmed file will include primary electrons on the main detector (28), sieve virtual plane (270), and GEM detectors (32-35).
+// The dataframe of the output is filtered to only include "good events" which are primary electrons that make it to the main detector.
+// The target variables are made using the tree branch "part" which looks at where particles are generated from.
+// After slimming the root file, the output file will include the following variables:
+// "sieve_r", "sieve_ph", "main_r", "main_ph", "main_trid", "main_x", "main_y", "main_px", "main_py", "main_pz", "rate" , 
+// "gem1_r", "gem1_ph", "sieve_ph", "sieve_px", "sieve_py", "sieve_pz", "gem1_x", "gem1_y", "gem4_x", "gem4_y",
+// "gem1_px", "gem1_py", "gem1_pz", "sieve_x", "sieve_y", "tg_th", "tg_ph", "tg_p", "tg_vz"
+
 
 void SlimGeneral(TString infile)
 {
