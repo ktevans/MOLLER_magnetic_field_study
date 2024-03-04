@@ -10,4 +10,4 @@ How to generate rootfiles and CSV files:
 
   a.) Use the "hadd" command.
   
-3.) Slim down each combined root file using the script "scripts/SlimGeneral_simple.C"
+3.) Slim down each combined root file using the script "scripts/SlimGeneral.C"
