@@ -87,62 +87,6 @@
 /remoll/SD/detect lowenergyneutral 270
 /remoll/SD/detect secondaries 270
 
-/remoll/SD/enable 9000
-/remoll/SD/detect lowenergyneutral 9000
-/remoll/SD/detect secondaries 9000
-
-/remoll/SD/enable 9001
-/remoll/SD/detect lowenergyneutral 9001
-/remoll/SD/detect secondaries 9001
-
-/remoll/SD/enable 51
-/remoll/SD/detect lowenergyneutral 51
-/remoll/SD/detect secondaries 51
-
-/remoll/SD/enable 54
-/remoll/SD/detect lowenergyneutral 54
-/remoll/SD/detect secondaries 54
-
-/remoll/SD/enable 57
-/remoll/SD/detect lowenergyneutral 57
-/remoll/SD/detect secondaries 57
-
-/remoll/SD/enable 5696
-/remoll/SD/detect lowenergyneutral 5696
-/remoll/SD/detect secondaries 5696
-
-/remoll/SD/enable 5697
-/remoll/SD/detect lowenergyneutral 5697
-/remoll/SD/detect secondaries 5697
-
-/remoll/SD/enable 70
-/remoll/SD/detect lowenergyneutral 70
-/remoll/SD/detect secondaries 70
-
-/remoll/SD/enable 71
-/remoll/SD/detect lowenergyneutral 71
-/remoll/SD/detect secondaries 71
-
-/remoll/SD/enable 72
-/remoll/SD/detect lowenergyneutral 72
-/remoll/SD/detect secondaries 72
-
-/remoll/SD/enable 73
-/remoll/SD/detect lowenergyneutral 73
-/remoll/SD/detect secondaries 73
-
-/remoll/SD/enable 74
-/remoll/SD/detect lowenergyneutral 74
-/remoll/SD/detect secondaries 74
-
-/remoll/SD/enable 5719
-/remoll/SD/detect lowenergyneutral 5719
-/remoll/SD/detect secondaries 5719
-
-/remoll/SD/enable 5720
-/remoll/SD/detect lowenergyneutral 5720
-/remoll/SD/detect secondaries 5720
-
 /remoll/target/print
 /process/list
 
