@@ -1,10 +1,10 @@
-## Run using the following commands:
-##  >> root -l
-##  >> .L scripts/SlimGeneral.C
-##  >> SlimGeneral("/path/to/input/file") 
-##
-## Do not include ".root" at the end of your input file.
-## This will output a slimmed down file with the same name as the input file but ending in "_slim"
+// Run using the following commands:
+//  >> root -l
+//  >> .L scripts/SlimGeneral.C
+//  >> SlimGeneral("/path/to/input/file") 
+//
+// Do not include ".root" at the end of your input file.
+// This will output a slimmed down file with the same name as the input file but ending in "_slim"
 
 void SlimGeneral(TString infile)
 {
