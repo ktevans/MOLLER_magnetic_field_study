@@ -2,6 +2,18 @@
 Collection of scripts that facilitate the study of the magnetic field for the MOLLER experiment using optics analysis
 
 ## Setting up your virtual environment
+You need python downloaded onto your computer in order to use the python scripts in this repository. Here are resouces to download python:
+
+https://www.python.org/downloads/macos/
+
+https://www.python.org/downloads/windows/
+
+You can also run these scripts directly on a Jupyter Notebook. For example, open your JupyterLab and type:
+```
+run /path/to/MOLLER_magnetic_field_study/scripts/test.py
+```
+You should see the output "Hello, World!"
+
 To build the virtual environment for python start in the base directory (MOLLER_magnetic_field_study) and type the following:
 ```
 !/bin/bash
