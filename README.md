@@ -14,7 +14,7 @@ run /path/to/MOLLER_magnetic_field_study/scripts/test.py
 ```
 You should see the output "Hello, World!"
 
-To build the virtual environment for python start in the base directory (MOLLER_magnetic_field_study) and type the following:
+To build the virtual environment on your local computer start in the cloned base directory (MOLLER_magnetic_field_study) and type the following:
 ```
 !/bin/bash
 source setup.csh
