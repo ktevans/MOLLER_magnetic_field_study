@@ -17,3 +17,8 @@ If you need to install more python modules, e.g. pyperclip, use the following co
 ```
 pip3 install pyperclip
 ```
+In order to test your setup, run the test script by typing:
+```
+python3 scripts/test.py
+```
+You should see the output "Hello, World!"
