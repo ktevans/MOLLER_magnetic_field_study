@@ -4,8 +4,9 @@ import pandas as pd
 
 #This script will combine all CSV files in a directory into a new file in that same directory called "combined.csv".
 
-#Define the path to the CSV files and an output file for the combined CSV file.
-file_path = "../output/Symmetric/Pass2_Optics1/"
+#User input will define the path to the CSV files and an output file for the combined CSV file.
+#Example: file_path = "output/Symmetric/Pass2_Optics1/"
+file_path = input("Enter path to the folder of CSV files you would like to combine. This should be in the form /path/to/files/ \n")
 output_file = file_path + "combined.csv"
 
 #Make a list of all files in a directory.
@@ -17,4 +18,3 @@ df_concat = pd.concat([pd.read_csv(file_path+f) for f in file_list], ignore_inde
 
 #Write the data frame to a CSV file.
 df_concat.to_csv(output_file)
-
