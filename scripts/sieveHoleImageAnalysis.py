@@ -2,7 +2,11 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 from matplotlib.patches import Ellipse
+from matplotlib.patches import Rectangle
+from matplotlib.path import Path
+from matplotlib.patches import PathPatch
 import matplotlib.transforms as transforms
 from matplotlib.backends.backend_pdf import PdfPages
 import os
@@ -108,9 +112,85 @@ class SieveHoleImageAnalysis:
 
     def MakeSinglePlots(self):
 
-        df_sym = self.sym
-        df_asym1 = self.asym1
-        df_asym2 = self.asym2
+        file_prefix_sym = self.prefix_sym
+        file_prefix_asym1 = self.prefix_asym1
+        file_prefix_asym2 = self.prefix_asym2
+
+        field_maps = [file_prefix_sym, file_prefix_asym1, file_prefix_asym2]
+        cols = ['hole_id', 'center_r', 'center_ph', 'eccentricity']
+
+        for field in field_maps:
+
+            df_param = pd.DataFrame(columns = cols)
+            dict_list = []
+
+            with PdfPages(field + 'single_plots.pdf') as pdf:
+                for h in self.holes:
+                    df_hole = pd.read_csv(field + str(h) + ".csv")
+
+                    fig, ax = plt.subplots(figsize=(6,6))
+                    x = df_hole['gem1_r']
+                    y = df_hole['gem1_ph']
+                    ax.scatter(x, y)
+
+                    #Find the covariance between the two datasets in order to calculate the Pearson correlation coefficient
+                    cov = np.cov(x,y)
+                    # p = cov[x,y] / sqrt(sigma_x * signa_y)
+                    pearson = cov[0,1]/np.sqrt(cov[0,0] * cov[1,1])
+
+                    #Define if correlation is positive or negative
+                    corr = 0
+                    if pearson > 0:
+                        corr = 1
+                    if pearson < 0:
+                        corr = -1
+
+                    #Using a special case to obtain the eigenvalues of this two-dimensional dataset.
+                    ell_radius_x = np.sqrt(1 + pearson)
+                    ell_radius_y = np.sqrt(1 - pearson)
+
+                    ellipse = Ellipse((0,0), width = ell_radius_x * 2, height = ell_radius_y * 2, facecolor = 'none', edgecolor = 'red')
+
+                    #Calculating the standard deviation of x from the squareroot of the variance and multiplying with the given number of standard deviations.
+                    scale_x = np.sqrt(cov[0,0]) * 2.5
+                    mean_x = np.mean(x)
+
+                    #Calculating the standard deviation of y ...
+                    scale_y = np.sqrt(cov[1, 1]) * 2.5
+                    mean_y = np.mean(y)
+
+                    #Transform the ellipse to surround the data
+                    transf = transforms.Affine2D().rotate_deg(45).scale(scale_x, scale_y).translate(mean_x, mean_y)
+
+                    ellipse.set_transform(transf + ax.transData)
+
+                    #Calculate the eccentricity of the ellipse as the slope of a line
+                    std_x = np.std(x)
+                    std_y = np.std(y)
+                    slp = corr * (std_y) / (std_x)
+
+                    ax.axline((mean_x, mean_y), slope = slp, color = 'b', label = f'slope: {slp:0.5f}')
+
+                    cen = [mean_x, mean_y]
+                    ellipse.set_label(f"center: [{mean_x:0.2f}, {mean_y:0.2f}]")
+                    ax.add_patch(ellipse)
+
+                    #record all the parameters from the ellipse and add to a list
+                    row_dict = {'hole_id': h, 'center_r': cen[0], 'center_ph': cen[1], 'eccentricity': slp}
+                    dict_list.append(row_dict)
+
+                    ax.set_title('Hole ' + str(h) + ' image on the first GEM plane')
+                    ax.set_xlabel("Radial position [mm]")
+                    ax.set_ylabel("Azimuthal position [rad]")
+                    ax.legend()
+
+                    pdf.savefig()  # saves the current figure into a pdf page
+                    plt.close()
+
+            df_param = pd.DataFrame.from_dict(dict_list)
+            df_param.to_csv(field + 'ellipse_parameters.csv')
+
+    def MakeComparisonPlots(self):
 
         file_prefix_sym = self.prefix_sym
         file_prefix_asym1 = self.prefix_asym1
@@ -118,104 +198,80 @@ class SieveHoleImageAnalysis:
 
         field_maps = [file_prefix_sym, file_prefix_asym1, file_prefix_asym2]
 
-        for field in field_maps:
-            with PdfPages(field + 'single_plots.pdf') as pdf:
-                for h in self.holes:
-                    df_hole = pd.read_csv(field + str(h) + ".csv")
-                    fig, ax_nstd = plt.subplots(figsize=(6,6))
-                    x = df_hole['gem1_r']
-                    y = df_hole['gem1_ph']
-                    ax_nstd.scatter(x, y)
+        fig, (ax, ax2) = plt.subplots(2, 1, figsize=(8,8), sharex=True, gridspec_kw={'height_ratios': [3, 1]})
 
-                    cov = np.cov(x,y)
-                    pearson = cov[0,1]/np.sqrt(cov[0,0] * cov[1,1])
-                    #print(pearson)
+        df_sym = pd.read_csv(file_prefix_sym + "ellipse_parameters.csv")
+        x_sym = df_sym.index.values
+        cen_sym = df_sym['center_r']
 
-                    #Using a special case to obtain the eigenvalues of this two-dimensional dataset.
-                    ell_radius_x = np.sqrt(1 + pearson)
-                    ell_radius_y = np.sqrt(1 - pearson)
+        df_asym1 = pd.read_csv(file_prefix_asym1 + "ellipse_parameters.csv")
+        x_asym1 = df_asym1.index.values
+        cen_asym1 = df_asym1['center_r']
 
-                    ellipse_1 = Ellipse((0,0), width = ell_radius_x * 2, height = ell_radius_y * 2, facecolor = 'none', edgecolor = 'red', label = r'$1\sigma$')
+        df_asym2 = pd.read_csv(file_prefix_asym2 + "ellipse_parameters.csv")
+        x_asym2 = df_asym2.index.values
+        cen_asym2 = df_asym2['center_r']
 
-                    ellipse_2 = Ellipse((0,0), width = ell_radius_x * 2, height = ell_radius_y * 2, facecolor = 'none', edgecolor = 'blue', label = r'$2\sigma$')
+        asym1_dif_col = df_sym['center_r'] - df_asym1['center_r']
+        asym2_dif_col = df_sym['center_r'] - df_asym2['center_r']
 
-                    ellipse_3 = Ellipse((0,0), width = ell_radius_x * 2, height = ell_radius_y * 2, facecolor = 'none', edgecolor = 'green', label = r'$3\sigma$')
+        df_compare = pd.DataFrame()
+        df_compare = pd.concat([df_compare, df_sym['hole_id']], axis=1)
+        df_compare = pd.concat([df_compare, asym1_dif_col.rename("sym_asym1_comp")], axis=1)
+        df_compare = pd.concat([df_compare, asym2_dif_col.rename("sym_asym2_comp")], axis=1)
 
-                    #Calculating the standard deviation of x from the squareroot of the variance and multiplying with the given number of standard deviations.
-                    scale_x_1 = np.sqrt(cov[0,0]) * 1.0
-                    scale_x_2 = np.sqrt(cov[0,0]) * 2.0
-                    scale_x_3 = np.sqrt(cov[0,0]) * 3.0
-                    mean_x = np.mean(x)
+        ax.scatter(x_sym, cen_sym, zorder=2, color = 'b', label = 'Symmetric Field Map')
+        ax.scatter(x_asym1, cen_asym1, zorder=3, color = 'r', label = 'DipolePoint5RandSC23 Field Map')
+        ax.scatter(x_asym2, cen_asym2, zorder=4, color = 'g', label = 'Dipole3SameSC23 Field Map')
 
-                    #Calculating the standard deviation of y ...
-                    scale_y_1 = np.sqrt(cov[1, 1]) * 1.0
-                    scale_y_2 = np.sqrt(cov[1, 1]) * 2.0
-                    scale_y_3 = np.sqrt(cov[1, 1]) * 3.0
-                    mean_y = np.mean(y)
+        ax2.plot(df_compare.index.values, df_compare['sym_asym1_comp'], color = 'r', label = 'Symmetric and DipolePoint5RandSC23', zorder=2)
+        ax2.plot(df_compare.index.values, df_compare['sym_asym2_comp'], color = 'g', label = 'Symmetric and Dipole3SameSC23', zorder=3)
 
-                    transf1 = transforms.Affine2D().rotate_deg(45).scale(scale_x_1, scale_y_1).translate(mean_x, mean_y)
-                    transf2 = transforms.Affine2D().rotate_deg(45).scale(scale_x_2, scale_y_2).translate(mean_x, mean_y)
-                    transf3 = transforms.Affine2D().rotate_deg(45).scale(scale_x_3, scale_y_3).translate(mean_x, mean_y)
+        labels = list(df_sym['hole_id'])
+        ax2.xaxis.set_major_locator(ticker.FixedLocator(x_sym))
+        ax2.xaxis.set_major_formatter(ticker.FixedFormatter(labels))
 
-                    ellipse_1.set_transform(transf1 + ax_nstd.transData)
-                    ax_nstd.add_patch(ellipse_1)
-                    ellipse_2.set_transform(transf2 + ax_nstd.transData)
-                    ax_nstd.add_patch(ellipse_2)
-                    ellipse_3.set_transform(transf3 + ax_nstd.transData)
-                    ax_nstd.add_patch(ellipse_3)
+        ax.xaxis.grid(True, zorder=1)
 
-                    ax_nstd.set_title('Hole ' + str(h) + ' image on the first GEM plane')
-                    ax_nstd.set_xlabel("Radial position [mm]")
-                    ax_nstd.set_ylabel("Azimuthal position [rad]")
-                    ax_nstd.legend()
+        ax2.grid(True, zorder=1)
 
-                    pdf.savefig()  # saves the current figure into a pdf page
-                    plt.close()
+        ax.set_title('Radial Position of the Center of Sieve Hole Images on the First GEM Plane')
+        ax2.set_xlabel("Sieve Hole ID")
+        ax.set_ylabel("Radial position [mm]")
+        ax.legend()
+
+        ax2.set_ylabel("Residual Values [mm]")
+        ax2.legend()
+
+        #plt.grid()
+        plt.tight_layout()
+        plt.show()
 
     def TestPlots(self):
 
         file_prefix_sym = self.prefix_sym
-        file_prefix_asym1 = self.prefix_asym1
-        file_prefix_asym2 = self.prefix_asym2
 
-        df_hole = pd.read_csv(file_prefix_sym  + "12.csv")
+        df = pd.DataFrame()
+
+        df = pd.read_csv("output/Symmetric/Pass2_Optics1/Symmetric_p2_Optics1_13.csv")
+
+        nstd = 2.5
+
+        mean_r = df.loc[:, 'gem1_r'].mean()
+        mean_ph = df.loc[:, 'gem1_ph'].mean()
+
+        std_r = df.loc[:, 'gem1_r'].std()
+        std_ph = df.loc[:, 'gem1_ph'].std()
+
+        ellipse = Ellipse((mean_r, mean_ph), width = std_r * nstd, height = std_ph * nstd * 2, facecolor = 'none', edgecolor = 'red', label = 'ellipse')
+
         fig, ax = plt.subplots(figsize=(6,6))
-        x = df_hole['gem1_r']
-        y = df_hole['gem1_ph']
-        ax.scatter(x, y)
+        ax.scatter(df['gem1_r'], df['gem1_ph'])
 
-        n_std = 3.0
-        cov = np.cov(x,y)
-        pearson = cov[0,1]/np.sqrt(cov[0,0] * cov[1,1])
-        #print(pearson)
-
-        #Using a special case to obtain the eigenvalues of this two-dimensional dataset.
-        ell_radius_x = np.sqrt(1 + pearson)
-        ell_radius_y = np.sqrt(1 - pearson)
-
-        ellipse = Ellipse((0,0), width = ell_radius_x * 2, height = ell_radius_y * 2, facecolor = 'none', edgecolor='red')
-
-        #Calculating the standard deviation of x from the squareroot of the variance and multiplying with the given number of standard deviations.
-        scale_x = np.sqrt(cov[0,0]) * n_std
-        mean_x = np.mean(x)
-
-        #Calculating the standard deviation of y ...
-        scale_y = np.sqrt(cov[1, 1]) * n_std
-        mean_y = np.mean(y)
-
-        transf = transforms.Affine2D().rotate_deg(45).scale(scale_x, scale_y).translate(mean_x, mean_y)
-
-        ellipse.set_transform(transf + ax.transData)
         ax.add_patch(ellipse)
-
-        ax.set_title('Hole 12 image on the first GEM plane')
-        ax.set_xlabel("Radial position [mm]")
-        ax.set_ylabel("Azimuthal position [rad]")
+        ax.legend()
 
         plt.show()
-
-        #pdf.savefig()  # saves the current figure into a pdf page
-        #plt.close()
 
 if __name__=='__main__':
 
@@ -223,5 +279,6 @@ if __name__=='__main__':
 
     imageAnalysis.Gen_CSV_All()
     imageAnalysis.MakeSinglePlots()
+    imageAnalysis.MakeComparisonPlots()
 
     #imageAnalysis.TestPlots()
