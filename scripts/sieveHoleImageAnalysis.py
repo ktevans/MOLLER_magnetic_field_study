@@ -24,6 +24,9 @@ class SieveHoleImageAnalysis:
         self.prefix_asym1 = ""
         self.prefix_asym2 = ""
 
+        self.pass_num = ''
+        self.target = ''
+        self.rot_angle = ''
         self.holes = [13, 12, 11, 23, 22, 21, 33, 32, 31, 43, 42, 41, 53, 52, 51, 63, 62, 61, 73, 72, 71]
 
     def Gen_CSV_All(self):
@@ -35,8 +38,11 @@ class SieveHoleImageAnalysis:
 
         ## gather user input for energy pass, target, and rotation angle
         pass_num = input("What energy pass would you like to analyze?\n")
+        self.pass_num = pass_num
         target = input("Which target would you like to analyze?\n")
+        self.target = target
         rot_angle = input("How many degrees would you like the sieve to be rotated in azimuth? Options are 0, 51, 102, 154, 205, 257, 308\n")
+        self.rot_angle = rot_angle
 
         ## middle of path to each csv file (same no matter what field map used)
         sub_path = "Pass" + pass_num + "_" + target + "/"
@@ -196,56 +202,77 @@ class SieveHoleImageAnalysis:
         file_prefix_asym1 = self.prefix_asym1
         file_prefix_asym2 = self.prefix_asym2
 
-        field_maps = [file_prefix_sym, file_prefix_asym1, file_prefix_asym2]
+        #field_maps = [file_prefix_sym, file_prefix_asym1, file_prefix_asym2]
 
-        fig, (ax, ax2) = plt.subplots(2, 1, figsize=(8,8), sharex=True, gridspec_kw={'height_ratios': [3, 1]})
+        #fig, (ax, ax2) = plt.subplots(2, 1, figsize=(8,8), sharex=True, gridspec_kw={'height_ratios': [3, 1]})
 
         df_sym = pd.read_csv(file_prefix_sym + "ellipse_parameters.csv")
         x_sym = df_sym.index.values
-        cen_sym = df_sym['center_r']
+        #cen_sym = df_sym['center_r']
 
         df_asym1 = pd.read_csv(file_prefix_asym1 + "ellipse_parameters.csv")
         x_asym1 = df_asym1.index.values
-        cen_asym1 = df_asym1['center_r']
+        #cen_asym1 = df_asym1['center_r']
 
         df_asym2 = pd.read_csv(file_prefix_asym2 + "ellipse_parameters.csv")
         x_asym2 = df_asym2.index.values
-        cen_asym2 = df_asym2['center_r']
+        #cen_asym2 = df_asym2['center_r']
 
-        asym1_dif_col = df_sym['center_r'] - df_asym1['center_r']
-        asym2_dif_col = df_sym['center_r'] - df_asym2['center_r']
+        params = ['center_r', 'center_ph', 'eccentricity']
 
-        df_compare = pd.DataFrame()
-        df_compare = pd.concat([df_compare, df_sym['hole_id']], axis=1)
-        df_compare = pd.concat([df_compare, asym1_dif_col.rename("sym_asym1_comp")], axis=1)
-        df_compare = pd.concat([df_compare, asym2_dif_col.rename("sym_asym2_comp")], axis=1)
+        for p in params:
 
-        ax.scatter(x_sym, cen_sym, zorder=2, color = 'b', label = 'Symmetric Field Map')
-        ax.scatter(x_asym1, cen_asym1, zorder=3, color = 'r', label = 'DipolePoint5RandSC23 Field Map')
-        ax.scatter(x_asym2, cen_asym2, zorder=4, color = 'g', label = 'Dipole3SameSC23 Field Map')
+            asym1_dif_col = df_sym[p] - df_asym1[p]
+            asym2_dif_col = df_sym[p] - df_asym2[p]
 
-        ax2.plot(df_compare.index.values, df_compare['sym_asym1_comp'], color = 'r', label = 'Symmetric and DipolePoint5RandSC23', zorder=2)
-        ax2.plot(df_compare.index.values, df_compare['sym_asym2_comp'], color = 'g', label = 'Symmetric and Dipole3SameSC23', zorder=3)
+            fig, (ax, ax2) = plt.subplots(2, 1, figsize=(8,8), sharex=True, gridspec_kw={'height_ratios': [3, 1]})
 
-        labels = list(df_sym['hole_id'])
-        ax2.xaxis.set_major_locator(ticker.FixedLocator(x_sym))
-        ax2.xaxis.set_major_formatter(ticker.FixedFormatter(labels))
+            df_compare = pd.DataFrame()
+            df_compare = pd.concat([df_compare, df_sym['hole_id']], axis=1)
+            df_compare = pd.concat([df_compare, asym1_dif_col.rename("sym_asym1_comp")], axis=1)
+            df_compare = pd.concat([df_compare, asym2_dif_col.rename("sym_asym2_comp")], axis=1)
 
-        ax.xaxis.grid(True, zorder=1)
+            ax.scatter(x_sym, df_sym[p], zorder=2, color = 'b', label = 'Symmetric Field Map', s=10)
+            ax.scatter(x_asym1, df_asym1[p], zorder=3, color = 'r', label = 'DipolePoint5RandSC23 Field Map', s=10)
+            ax.scatter(x_asym2, df_asym2[p], zorder=4, color = 'g', label = 'Dipole3SameSC23 Field Map', s=10)
 
-        ax2.grid(True, zorder=1)
+            ax2.plot(df_compare.index.values, df_compare['sym_asym1_comp'], color = 'r', label = 'Symmetric and DipolePoint5RandSC23', zorder=2)
+            ax2.plot(df_compare.index.values, df_compare['sym_asym2_comp'], color = 'g', label = 'Symmetric and Dipole3SameSC23', zorder=3)
 
-        ax.set_title('Radial Position of the Center of Sieve Hole Images on the First GEM Plane')
-        ax2.set_xlabel("Sieve Hole ID")
-        ax.set_ylabel("Radial position [mm]")
-        ax.legend()
+            labels = list(df_sym['hole_id'])
+            ax2.xaxis.set_major_locator(ticker.FixedLocator(x_sym))
+            ax2.xaxis.set_major_formatter(ticker.FixedFormatter(labels))
 
-        ax2.set_ylabel("Residual Values [mm]")
-        ax2.legend()
+            ax.xaxis.grid(True, zorder=1)
 
-        #plt.grid()
-        plt.tight_layout()
-        plt.show()
+            ax2.grid(True, zorder=1)
+
+            var = ''
+            axis = ''
+
+            if p == 'center_r':
+                var = 'Radial Position of the Center'
+                axis = 'Radial position [mm]'
+            if p == 'center_ph':
+                var = 'Azimuthal Position of the Center'
+                axis = 'Azimuthal position [rad]'
+            if p == 'eccentricity':
+                var = 'Eccentricity of the Ellipse'
+                axis = 'Eccentricity [rad/mm]'
+
+            ax.set_title(var + ' of Sieve Hole Images on the First GEM Plane')
+            ax2.set_xlabel("Sieve Hole ID")
+            ax.set_ylabel(axis)
+            ax.legend()
+
+            ax2.set_ylabel("Residual Values")
+            ax2.legend()
+
+            #plt.grid()
+            plt.tight_layout()
+            plt.savefig('output/Pass' + self.pass_num + '_' + self.target + '_' + p + '_Comparison.pdf')
+            plt.close()
+            #plt.show()
 
     def TestPlots(self):
 
