@@ -137,7 +137,7 @@ class SieveHoleImageAnalysis:
                     cov = np.cov(x,y)
                     ## cov = [[(sigma_x)^2, simga_xy], [sigma_yx, (sigma_y)^2]]
                     ## cross terms of the covariance matrix give the correlation between x and y
-                    # p = sigma_xy / (sigma_x * signa_y)
+                    ## p = sigma_xy / (sigma_x * signa_y)
                     pearson = cov[0,1]/np.sqrt(cov[0,0] * cov[1,1])
 
                     ## define correlation as positive or negative
@@ -163,7 +163,6 @@ class SieveHoleImageAnalysis:
 
                     ## transform the ellipse to surround the data
                     transf = transforms.Affine2D().rotate_deg(45).scale(scale_x, scale_y).translate(mean_x, mean_y)
-
                     ellipse.set_transform(transf + ax.transData)
 
                     ## calculate the eccentricity of the ellipse as the slope of a line
