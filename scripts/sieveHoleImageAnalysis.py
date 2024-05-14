@@ -1,6 +1,7 @@
 ## import modules
 import numpy as np
 import pandas as pd
+import math
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 from matplotlib.patches import Ellipse
@@ -49,11 +50,8 @@ class SieveHoleImageAnalysis:
 
         ## file name excluding hole id number and .csv
         file_prefix_sym = path_sym + sub_path + "Symmetric_p" + pass_num + "_" + target + "_"
-        #print(file_prefix_sym)
         file_prefix_asym1 = path_asym1 + sub_path + "DipolePoint5RandSC23_p" + pass_num + "_" + target + "_" + rot_angle + "degRot_"
-        #print(file_prefix_asym1)
         file_prefix_asym2 = path_asym2 + sub_path + "Dipole3SameSC23_p" + pass_num + "_" + target + "_" + rot_angle + "degRot_"
-        #print(file_prefix_asym2)
 
         self.prefix_sym = file_prefix_sym
         self.prefix_asym1 = file_prefix_asym1
@@ -79,9 +77,6 @@ class SieveHoleImageAnalysis:
             df_asym2['hole_id'] = hole
             df_asym2.to_csv(file_prefix_asym2 + str(hole) + ".csv")
 
-        ## csv file columns
-        ## index, tg_th, tg_ph, tg_vz, tg_p, gem1_r, gem1_rp, gem1_ph, gem1_php, gem1_ph_local, sieve_r, sieve_ph, rate, hole_id
-
         ## list of files that should be combined into one CSV file, currently empty but will be filled
         files_sym = []
         files_asym1 = []
@@ -97,9 +92,6 @@ class SieveHoleImageAnalysis:
         for filename in os.listdir(path_asym2 + sub_path):
             if filename.startswith("Dipole3SameSC23_p" + pass_num + "_" + target + "_" + rot_angle + "degRot_") and filename.endswith(".csv") and not filename.endswith("_all.csv"):
                 files_asym2.append(filename)
-
-        #for f in files_sym:
-            #print(path_sym + sub_path + f + "\n")
 
         ## add together all the CSV files for a specific configuration and specific field map
 
@@ -122,13 +114,15 @@ class SieveHoleImageAnalysis:
         file_prefix_asym1 = self.prefix_asym1
         file_prefix_asym2 = self.prefix_asym2
 
+        ## make list of different field maps
+
         field_maps = [file_prefix_sym, file_prefix_asym1, file_prefix_asym2]
         cols = ['hole_id', 'center_r', 'center_ph', 'eccentricity']
 
         for field in field_maps:
 
             df_param = pd.DataFrame(columns = cols)
-            dict_list = []
+            dict_list = [] ## list that will track ellipse parameters
 
             with PdfPages(field + 'single_plots.pdf') as pdf:
                 for h in self.holes:
@@ -139,58 +133,63 @@ class SieveHoleImageAnalysis:
                     y = df_hole['gem1_ph']
                     ax.scatter(x, y)
 
-                    #Find the covariance between the two datasets in order to calculate the Pearson correlation coefficient
+                    ## find the covariance between the two datasets in order to calculate the Pearson correlation coefficient
                     cov = np.cov(x,y)
-                    # p = cov[x,y] / sqrt(sigma_x * signa_y)
+                    ## cov = [[(sigma_x)^2, simga_xy], [sigma_yx, (sigma_y)^2]]
+                    ## cross terms of the covariance matrix give the correlation between x and y
+                    # p = sigma_xy / (sigma_x * signa_y)
                     pearson = cov[0,1]/np.sqrt(cov[0,0] * cov[1,1])
 
-                    #Define if correlation is positive or negative
+                    ## define correlation as positive or negative
                     corr = 0
                     if pearson > 0:
                         corr = 1
                     if pearson < 0:
                         corr = -1
 
-                    #Using a special case to obtain the eigenvalues of this two-dimensional dataset.
+                    ## using a special case to obtain the eigenvalues of this two-dimensional dataset
                     ell_radius_x = np.sqrt(1 + pearson)
                     ell_radius_y = np.sqrt(1 - pearson)
 
                     ellipse = Ellipse((0,0), width = ell_radius_x * 2, height = ell_radius_y * 2, facecolor = 'none', edgecolor = 'red')
 
-                    #Calculating the standard deviation of x from the squareroot of the variance and multiplying with the given number of standard deviations.
+                    ## calculating the standard deviation of x from the squareroot of the variance and multiplying with the given number of standard deviations
                     scale_x = np.sqrt(cov[0,0]) * 2.5
                     mean_x = np.mean(x)
 
-                    #Calculating the standard deviation of y ...
+                    ## calculating the standard deviation of y ...
                     scale_y = np.sqrt(cov[1, 1]) * 2.5
                     mean_y = np.mean(y)
 
-                    #Transform the ellipse to surround the data
+                    ## transform the ellipse to surround the data
                     transf = transforms.Affine2D().rotate_deg(45).scale(scale_x, scale_y).translate(mean_x, mean_y)
 
                     ellipse.set_transform(transf + ax.transData)
 
-                    #Calculate the eccentricity of the ellipse as the slope of a line
+                    ## calculate the eccentricity of the ellipse as the slope of a line
                     std_x = np.std(x)
                     std_y = np.std(y)
-                    slp = corr * (std_y) / (std_x)
+                    slp = corr * ((std_y) / (std_x))
 
-                    ax.axline((mean_x, mean_y), slope = slp, color = 'b', label = f'slope: {slp:0.5f}')
+                    ## draw line through center with the slope equal to the eccentricity of the ellipse
+                    ## caution: due to the skew of the data and the aspect ratio of the plot, the line can look like it does not pass through the ellipse center, so I have commented it out. But it's useful for understanding the results.
+                    ## ax.axline((mean_x, mean_y), slope = slp, color = 'b', label = f'slope: {slp:0.5f} rad/mm')
 
                     cen = [mean_x, mean_y]
-                    ellipse.set_label(f"center: [{mean_x:0.2f}, {mean_y:0.2f}]")
+                    ellipse.set_label(f"center: [{mean_x:0.2f} mm, {mean_y:0.2f} rad] \n eccentricity: {slp:0.5f} rad/mm")
                     ax.add_patch(ellipse)
 
-                    #record all the parameters from the ellipse and add to a list
+                    ## record all the parameters from the ellipse and add to a list
                     row_dict = {'hole_id': h, 'center_r': cen[0], 'center_ph': cen[1], 'eccentricity': slp}
                     dict_list.append(row_dict)
 
+                    ## format plot
                     ax.set_title('Hole ' + str(h) + ' image on the first GEM plane')
                     ax.set_xlabel("Radial position [mm]")
                     ax.set_ylabel("Azimuthal position [rad]")
                     ax.legend()
 
-                    pdf.savefig()  # saves the current figure into a pdf page
+                    pdf.savefig()  ## saves the current figure into a pdf page
                     plt.close()
 
             df_param = pd.DataFrame.from_dict(dict_list)
@@ -201,10 +200,6 @@ class SieveHoleImageAnalysis:
         file_prefix_sym = self.prefix_sym
         file_prefix_asym1 = self.prefix_asym1
         file_prefix_asym2 = self.prefix_asym2
-
-        #field_maps = [file_prefix_sym, file_prefix_asym1, file_prefix_asym2]
-
-        #fig, (ax, ax2) = plt.subplots(2, 1, figsize=(8,8), sharex=True, gridspec_kw={'height_ratios': [3, 1]})
 
         df_sym = pd.read_csv(file_prefix_sym + "ellipse_parameters.csv")
         x_sym = df_sym.index.values
@@ -249,23 +244,27 @@ class SieveHoleImageAnalysis:
 
             var = ''
             axis = ''
+            resid_label = ''
 
             if p == 'center_r':
                 var = 'Radial Position of the Center'
                 axis = 'Radial position [mm]'
+                resid_label = 'Residual Values [mm]'
             if p == 'center_ph':
                 var = 'Azimuthal Position of the Center'
                 axis = 'Azimuthal position [rad]'
+                resid_label = 'Residual Values [rad]'
             if p == 'eccentricity':
                 var = 'Eccentricity of the Ellipse'
                 axis = 'Eccentricity [rad/mm]'
+                resid_label = 'Residual Values [rad/mm]'
 
             ax.set_title(var + ' of Sieve Hole Images on the First GEM Plane')
             ax2.set_xlabel("Sieve Hole ID")
             ax.set_ylabel(axis)
             ax.legend()
 
-            ax2.set_ylabel("Residual Values")
+            ax2.set_ylabel(resid_label)
             ax2.legend()
 
             #plt.grid()
@@ -276,29 +275,16 @@ class SieveHoleImageAnalysis:
 
     def TestPlots(self):
 
+        ## method for testing one plot at a time; used for code development
+
         file_prefix_sym = self.prefix_sym
 
         df = pd.DataFrame()
 
         df = pd.read_csv("output/Symmetric/Pass2_Optics1/Symmetric_p2_Optics1_13.csv")
 
-        nstd = 2.5
-
-        mean_r = df.loc[:, 'gem1_r'].mean()
-        mean_ph = df.loc[:, 'gem1_ph'].mean()
-
-        std_r = df.loc[:, 'gem1_r'].std()
-        std_ph = df.loc[:, 'gem1_ph'].std()
-
-        ellipse = Ellipse((mean_r, mean_ph), width = std_r * nstd, height = std_ph * nstd * 2, facecolor = 'none', edgecolor = 'red', label = 'ellipse')
-
-        fig, ax = plt.subplots(figsize=(6,6))
-        ax.scatter(df['gem1_r'], df['gem1_ph'])
-
-        ax.add_patch(ellipse)
-        ax.legend()
-
-        plt.show()
+        X = df['gem1_r']
+        Y = df['gem1_ph']
 
 if __name__=='__main__':
 
