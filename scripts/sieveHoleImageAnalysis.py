@@ -1,3 +1,11 @@
+################################################################################
+##                               Kate Evans 2024                              ##
+##   Script to perform basic aspects of the analysis for the magnetic field   ##
+##                       study for the MOLLER experiment                      ##
+##           Used confidence ellipse method from following reference:         ##
+##  https://matplotlib.org/stable/gallery/statistics/confidence_ellipse.html  ##
+################################################################################
+
 ## import modules
 import numpy as np
 import pandas as pd
@@ -64,7 +72,6 @@ class SieveHoleImageAnalysis:
 
         for hole in hole_numbers:
             ## read each csv file and add a column that lists the hole id number
-
             df_sym = pd.read_csv(file_prefix_sym + str(hole) + ".csv")
             df_sym['hole_id'] = hole
             df_sym.to_csv(file_prefix_sym + str(hole) + ".csv")
@@ -94,7 +101,6 @@ class SieveHoleImageAnalysis:
                 files_asym2.append(filename)
 
         ## add together all the CSV files for a specific configuration and specific field map
-
         df_concat_sym = pd.concat([pd.read_csv(path_sym + sub_path + f) for f in files_sym], ignore_index = True)
         df_concat_sym.to_csv(file_prefix_sym + "all.csv")
 
@@ -115,7 +121,6 @@ class SieveHoleImageAnalysis:
         file_prefix_asym2 = self.prefix_asym2
 
         ## make list of different field maps
-
         field_maps = [file_prefix_sym, file_prefix_asym1, file_prefix_asym2]
         cols = ['hole_id', 'center_r', 'center_ph', 'eccentricity']
 
