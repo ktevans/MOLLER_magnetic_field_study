@@ -12,6 +12,10 @@ You can also run these scripts directly on a Jupyter Notebook. For example, open
 ```
 run /path/to/MOLLER_magnetic_field_study/scripts/test.py
 ```
+OR
+```
+%run /path/to/MOLLER_magnetic_field_study/scripts/test.py
+```
 You should see the output "Hello, World!"
 
 To build the virtual environment on your local computer start in the cloned base directory (MOLLER_magnetic_field_study) and type the following:
