@@ -43,17 +43,12 @@ class SieveHoleImageAnalysis:
         path_asym2 = "output/Dipole3SameSC23/"
 
         config.read(cfg_file)
-
         path_list = ast.literal_eval(config.get("Paths", "path_list"))
-
-        print(path_list)
 
         pass_num = config['Simulation Settings']['pass_num']
         self.pass_num = pass_num
-
         target = config['Simulation Settings']['target']
         self.target = target
-
         rot_angle = config['Simulation Settings']['rot_angle']
         self.rot_angle = rot_angle
 
@@ -61,7 +56,6 @@ class SieveHoleImageAnalysis:
         sub_path = "Pass" + pass_num + "_" + target + "/"
 
         prefix_list = []
-
         for p in path_list:
             if p == "output/Symmetric/":
                 prefix_list.append(p + sub_path + "Symmetric_p" + pass_num + "_" + target + "_")
@@ -69,7 +63,6 @@ class SieveHoleImageAnalysis:
                 prefix_list.append(p + sub_path + "DipolePoint5RandSC23_p" + pass_num + "_" + target + "_" + rot_angle + "degRot_")
             if p == "output/Dipole3SameSC23/":
                 prefix_list.append(p + sub_path + "Dipole3SameSC23_p" + pass_num + "_" + target + "_" + rot_angle + "degRot_")
-
         self.prefix_list = prefix_list
 
         hole_numbers = self.holes
@@ -101,7 +94,6 @@ class SieveHoleImageAnalysis:
                 for filename in os.listdir(p + sub_path):
                     if filename.startswith(begin_file) and filename.endswith(".csv") and not filename.endswith("_all.csv"):
                         files.append(filename)
-                print(files)
                 df_concat = pd.concat([pd.read_csv(p + sub_path + f) for f in files], ignore_index = True)
                 df_concat.to_csv(pref + "all.csv")
 
@@ -113,7 +105,7 @@ class SieveHoleImageAnalysis:
 
         ## make list of different field maps
         field_maps = [file_prefix_sym, file_prefix_asym1, file_prefix_asym2]
-        cols = ['hole_id', 'center_r', 'center_ph', 'eccentricity']
+        cols = ['hole_id', 'center_r', 'center_ph', 'eccentricity', 'r_err', 'ph_err', 'ecc_err']
 
         for field in field_maps:
 
@@ -170,12 +162,29 @@ class SieveHoleImageAnalysis:
                     ## caution: due to the skew of the data and the aspect ratio of the plot, the line can look like it does not pass through the ellipse center, so I have commented it out. But it's useful for understanding the results.
                     ## ax.axline((mean_x, mean_y), slope = slp, color = 'b', label = f'slope: {slp:0.5f} rad/mm')
 
+                    n = 0
+                    r_region = 2.5 * std_x
+                    ph_region = 2.5 * std_y
+                    for index, row in df_hole.iterrows():
+                        if row['gem1_r'] < (mean_x + r_region) and row['gem1_r'] > (mean_x - r_region) and row['gem1_ph'] < (mean_y + ph_region) and row['gem1_ph'] > (mean_y - ph_region):
+                            n += 1
+
                     cen = [mean_x, mean_y]
-                    ellipse.set_label(f"center: [{mean_x:0.2f} mm, {mean_y:0.2f} rad] \n eccentricity: {slp:0.5f} rad/mm")
+                    ellipse.set_label(f"center: [{mean_x:0.2f} mm, {mean_y:0.2f} rad] \n eccentricity: {slp:0.5f} rad/mm \n {n:0.0f} electrons")
                     ax.add_patch(ellipse)
 
+                    ## calculate errors in the mean values
+                    r_error = std_x / np.sqrt(n)
+                    ph_error = std_y / np.sqrt(n)
+
+                    ## calculate error in eccentricity
+                    std_r_error = np.sqrt( (2 * np.power(std_x, 4)) / (n - 1))
+                    std_ph_error = np.sqrt( (2 * np.power(std_y, 4)) / (n - 1))
+
+                    ecc_err = np.absolute(slp * np.sqrt(np.power((std_r_error/std_x), 2) + np.power((std_ph_error/std_y), 2)))
+
                     ## record all the parameters from the ellipse and add to a list
-                    row_dict = {'hole_id': h, 'center_r': cen[0], 'center_ph': cen[1], 'eccentricity': slp}
+                    row_dict = {'hole_id': h, 'center_r': cen[0], 'center_ph': cen[1], 'eccentricity': slp, 'r_err': r_error, 'ph_err': ph_error, 'ecc_err': ecc_err}
                     dict_list.append(row_dict)
 
                     ## format plot
@@ -212,8 +221,17 @@ class SieveHoleImageAnalysis:
 
         for p in params:
 
+            err = ''
+
             asym1_dif_col = df_sym[p] - df_asym1[p]
             asym2_dif_col = df_sym[p] - df_asym2[p]
+
+            if p == 'center_r':
+                err = 'r_err'
+            if p == 'center_ph':
+                err = 'ph_err'
+            if p == 'eccentricity':
+                err = 'ecc_err'
 
             fig, (ax, ax2) = plt.subplots(2, 1, figsize=(8,8), sharex=True, gridspec_kw={'height_ratios': [3, 1]})
 
@@ -222,9 +240,9 @@ class SieveHoleImageAnalysis:
             df_compare = pd.concat([df_compare, asym1_dif_col.rename("sym_asym1_comp")], axis=1)
             df_compare = pd.concat([df_compare, asym2_dif_col.rename("sym_asym2_comp")], axis=1)
 
-            ax.scatter(x_sym, df_sym[p], zorder=2, color = 'b', label = 'Symmetric Field Map', s=10)
-            ax.scatter(x_asym1, df_asym1[p], zorder=3, color = 'r', label = 'DipolePoint5RandSC23 Field Map', s=10)
-            ax.scatter(x_asym2, df_asym2[p], zorder=4, color = 'g', label = 'Dipole3SameSC23 Field Map', s=10)
+            ax.errorbar(x_sym, df_sym[p], yerr = df_sym[err], zorder=2, color = 'b', label = 'Symmetric Field Map', fmt = '.')
+            ax.errorbar(x_asym1, df_asym1[p], yerr = df_asym1[err], zorder=3, color = 'r', label = 'DipolePoint5RandSC23 Field Map', fmt = '.')
+            ax.errorbar(x_asym2, df_asym2[p], yerr = df_asym1[err], zorder=4, color = 'g', label = 'Dipole3SameSC23 Field Map', fmt = '.')
 
             ax2.plot(df_compare.index.values, df_compare['sym_asym1_comp'], color = 'r', label = 'Symmetric and DipolePoint5RandSC23', zorder=2)
             ax2.plot(df_compare.index.values, df_compare['sym_asym2_comp'], color = 'g', label = 'Symmetric and Dipole3SameSC23', zorder=3)
