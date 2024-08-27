@@ -17,7 +17,7 @@ together.
 //
 //  Includes superimposed 2D histograms with legends.
 #include <TF1.h>
-void Kate(const TString& files)
+void PlottingExample(const TString& files)
 {
   // Allow Tree to use the root files you call
   TChain* T = new TChain("T");
