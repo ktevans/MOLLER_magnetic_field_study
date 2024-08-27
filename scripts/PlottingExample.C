@@ -10,7 +10,7 @@ like
 go to
 //
 // Run using (for example):
-//   build/reroot -l -q 'analysis/Kate.C(“remollout.root")'
+//   build/reroot -l -q 'scripts/PlottingExample.C(“remollout.root")'
 //
 //  Can put multiple root files in argument, and they will be chained
 together.
