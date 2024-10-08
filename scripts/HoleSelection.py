@@ -1,3 +1,9 @@
+## Script to manually select events from individual sieve holes based
+## on their projections onto the GEMs
+## Written October 8th 2024
+## Kate Evans kate.evans4444@gmail.com
+
+
 #import modules
 import math
 import uproot
