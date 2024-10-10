@@ -63,7 +63,7 @@ def main(cfg_file):
     elif hole_id_var == "71" or hole_id_var == "72" or hole_id_var == "73":
          optics.SelectOneHole(optics.d['sec7'])
 
-    filename = "output/" + str(fieldMap_var) + "/Pass" + str(pass_var) + "_" + str(target_var) + "/" + str(fieldMap_var) + "_p" + str(pass_var) + "_" + str(target_var) + "_" + hole_id_var + ".csv"
+    filename = "output/" + str(fieldMap_var) + "/Pass" + str(pass_var) + "_" + str(target_var) + "/" + str(fieldMap_var) + "_p" + str(pass_var) + "_" + str(target_var) + "_" + str(rot_angle) + "rotation_" + hole_id_var + ".csv"
 
     #print(filename)
 

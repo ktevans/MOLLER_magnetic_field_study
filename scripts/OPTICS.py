@@ -171,7 +171,7 @@ class OPTICS:
         header=["tg_th","tg_ph","tg_vz","tg_p","gem1_r","gem1_rp","gem1_ph","gem1_php","gem1_ph_local","sieve_r","sieve_ph","rate"]
         df.to_csv(filename,columns=header)
 
-    def PolynomialRegression(self, X, y, degree, variable, pass_value, tg_loc, fit_filename):
+    def PolynomialRegression(self, X, y, degree, variable, fit_filename):
 
         #define training and test data
         X_train,X_test,y_train,y_test=train_test_split(X, y, test_size=0.33, random_state=42)
@@ -195,9 +195,9 @@ class OPTICS:
 
         sigma_squared_hat = residual_sum_of_squares[0,0]/(N-p)
         var = np.linalg.inv(X_test_new.T @ X_test_new)*sigma_squared_hat
-        for par in range(p):
-            standard_error = var[par,par]**0.5
-            print(standard_error)
+        #for par in range(p):
+            #standard_error = var[par,par]**0.5
+            #print(standard_error)
 
         #define variables for the parameters and the score
         params = model.coef_
@@ -217,38 +217,108 @@ class OPTICS:
 
         varNms = ["GEM r [mm]", "GEM rp", "GEM phi [rad]", "GEM phip"]
 
-        fig1, ax1 = plt.subplots(2,2)
-        fig1.canvas.manager.set_window_title(variable)
+        #fig1, ax1 = plt.subplots(2,2)
+        #fig1.canvas.manager.set_window_title(variable)
 
-        for i in range(1):
-         for j in range(2):
+        #for i in range(1):
+         #for j in range(2):
 
-          ax1[i,j].scatter(X_test[:,[i*2+j]],y_test, s=5, cmap='Greens')
-          ax1[i,j].scatter(X_test[:,[i*2+j]],y_pred, s=5, cmap='Reds')
-          ax1[i,j].set_ylabel(variable)
-          ax1[i,j].set_xlabel(varNms[i*2+j])
+          #ax1[i,j].scatter(X_test[:,[i*2+j]],y_test, s=5, cmap='Greens')
+          #ax1[i,j].scatter(X_test[:,[i*2+j]],y_pred, s=5, cmap='Reds')
+          #ax1[i,j].set_ylabel(variable)
+          #ax1[i,j].set_xlabel(varNms[i*2+j])
 
-        plt.show()
+        if variable == "theta":
+         fig, ax = plt.subplots(1,2)
+         fig.canvas.manager.set_window_title(variable)
+         ax[0].scatter(X_test[:,[0]],y_test[:,[0]], cmap='Greens', label="true")
+         ax[0].scatter(X_test[:,[0]],y_pred[:,[0]], cmap='Reds', label="predicted")
+         ax[0].set_ylabel('target_theta (rad)')
+         ax[0].set_xlabel('gem_r(mm)')
+         ax[0].legend()
+         ax[1].scatter( X_test[:,[1]], y_test[:,[0]], cmap='Greens', label="true")
+         ax[1].scatter( X_test[:,[1]], y_pred[:,[0]], cmap='Reds', label="predicted")
+         ax[1].set_ylabel('target_theta(rad)')
+         ax[1].set_xlabel('gem_rp')
+         ax[1].legend()
+         plt.show()
 
-        c = ROOT.TCanvas()
-        hist = ROOT.TH1F("hist","Residual Distribution;Residuals(rad);Counts",150,-0.005,0.005)
-        f1 = ROOT.TF1("f1","gaus",-0.01,0.01,3)
-        for x in y_res:
-         hist.Fill(x)
+        if variable == "sieve_r":
+         fig, ax = plt.subplots(1,2)
+         fig.canvas.manager.set_window_title(variable)
+         ax[0].scatter(X_test[:,[0]],y_test[:,[0]], cmap='Greens', label="true")
+         ax[0].scatter(X_test[:,[0]],y_pred[:,[0]], cmap='Reds', label="predicted")
+         ax[0].set_ylabel('sieve_r (mm)')
+         ax[0].set_xlabel('gem_r(mm)')
+         ax[0].legend()
+         ax[1].scatter( X_test[:,[1]], y_test[:,[0]], cmap='Greens', label="true")
+         ax[1].scatter( X_test[:,[1]], y_pred[:,[0]], cmap='Reds', label="predicted")
+         ax[1].set_ylabel('sieve_r(mm)')
+         ax[1].set_xlabel('gem_rp')
+         ax[1].legend()
+         plt.show()
 
-        f1.SetParameter(1,mean_res)
-        hist.Fit(f1)
+        if variable == "phi":
+         fig, ax = plt.subplots(2,2)
+         fig.canvas.manager.set_window_title(variable)
+         ax[0,0].scatter(X_test[:,[0]],y_test[:,[0]], cmap='Greens', label="true")
+         ax[0,0].scatter(X_test[:,[0]],y_pred[:,[0]], cmap='Reds', label="predicted")
+         ax[0,0].set_ylabel('target_phi (rad)')
+         ax[0,0].set_xlabel('gem_r(mm)')
+         ax[0,0].legend()
+         ax[0,1].scatter( X_test[:,[1]], y_test[:,[0]], cmap='Greens', label="true")
+         ax[0,1].scatter( X_test[:,[1]], y_pred[:,[0]], cmap='Reds', label="predicted")
+         ax[0,1].set_ylabel('target_phi(rad)')
+         ax[0,1].set_xlabel('gem_rp')
+         ax[0,1].legend()
+         ax[1,0].scatter(X_test[:,[2]],y_test[:,[0]], cmap='Greens', label="true")
+         ax[1,0].scatter(X_test[:,[2]],y_pred[:,[0]], cmap='Reds', label="predicted")
+         ax[1,0].set_ylabel('target_phi (rad)')
+         ax[1,0].set_xlabel('gem_phi')
+         ax[1,0].legend()
+         ax[1,1].scatter( X_test[:,[3]], y_test[:,[0]], cmap='Greens', label="true")
+         ax[1,1].scatter( X_test[:,[3]], y_pred[:,[0]], cmap='Reds', label="predicted")
+         ax[1,1].set_ylabel('target_phi(rad)')
+         ax[1,1].set_xlabel('gem_phip')
+         ax[1,1].legend()
+         plt.show()
 
-        for i in range(5):
-         hist.Fit(f1,"R","",f1.GetParameter(1)-1.5*f1.GetParameter(2), f1.GetParameter(1)+1.5*f1.GetParameter(2))
+        if variable == "momentum":
+         fig, ax = plt.subplots(1,2)
+         fig.canvas.manager.set_window_title(variable)
+         ax[0].scatter(X_test[:,[0]],y_test[:,[0]], cmap='Greens', label="true")
+         ax[0].scatter(X_test[:,[0]],y_pred[:,[0]], cmap='Reds', label="predicted")
+         ax[0].set_ylabel('target_z (mm)')
+         ax[0].set_xlabel('gem_r(mm)')
+         ax[0].legend()
+         ax[1].scatter( X_test[:,[1]], y_test[:,[0]], cmap='Greens', label="true")
+         ax[1].scatter( X_test[:,[1]], y_pred[:,[0]], cmap='Reds', label="predicted")
+         ax[1].set_ylabel('target_z(mm)')
+         ax[1].set_xlabel('gem_rp')
+         ax[1].legend()
+         plt.show()
 
-        c.cd()
-        hist.Draw()
-        latex = ROOT.TLatex()
-        latex.DrawLatexNDC(0.2,0.8,"mean (mrad) = %f #pm %f"%(f1.GetParameter(1)*1e3, f1.GetParError(1)*1e3))
-        latex.DrawLatexNDC(0.2,0.7,"SD (mrad) = %f #pm %f"%(f1.GetParameter(2)*1e3, f1.GetParError(2)*1e3))
-        c.Draw()
-        c.Update()
+        #plt.show()
+
+        #c = ROOT.TCanvas()
+        #hist = ROOT.TH1F("hist","Residual Distribution;Residuals(rad);Counts",150,-0.005,0.005)
+        #f1 = ROOT.TF1("f1","gaus",-0.01,0.01,3)
+        #for x in y_res:
+        # hist.Fill(x)
+
+        #f1.SetParameter(1,mean_res)
+        #hist.Fit(f1)
+
+        #for i in range(5):
+        # hist.Fit(f1,"R","",f1.GetParameter(1)-1.5*f1.GetParameter(2), f1.GetParameter(1)+1.5*f1.GetParameter(2))
+
+        #c.cd()
+        #hist.Draw()
+        #latex = ROOT.TLatex()
+        #latex.DrawLatexNDC(0.2,0.8,"mean (mrad) = %f #pm %f"%(f1.GetParameter(1)*1e3, f1.GetParError(1)*1e3))
+        #latex.DrawLatexNDC(0.2,0.7,"SD (mrad) = %f #pm %f"%(f1.GetParameter(2)*1e3, f1.GetParError(2)*1e3))
+        #c.Draw()
+        #c.Update()
 
 def method():
   print("OPTICS")
