@@ -83,6 +83,7 @@ def main(flag_csv_var, flag_fit_var, pass_value_var, tg_loc_var, flag_histo, fit
                   ##fit_filename = "/volatile/halla/moller12gev/ktevans1/rootfiles2024/OpticsAnalysis/Optics"+str(a_tg_loc)+"/"+field_map_var+"FieldMap_Optics"+tg_loc_var+"_"+pass_value_var+"_"+variable+"_parameters.txt"
                   fit_filename="/volatile/halla/moller12gev/ktevans1/rootfiles2024/MagFieldStudy/" + field_map_var + "/output/" + field_map_var + "_" + str(a_pass)  + "_" + str(a_tg_loc) + "_" + str(a_file) + "_" + variable  + "_parameters.txt"
 
+
       #do the theta reconstruction
       if fit_theta_var == 1:
           variable = "theta"
