@@ -6,8 +6,17 @@ import pandas as pd
 
 #User input will define the path to the CSV files and an output file for the combined CSV file.
 #Example: file_path = "output/Symmetric/Pass2_Optics1/"
-file_path = input("Enter path to the folder of CSV files you would like to combine. This should be in the form /path/to/files/ \n")
-output_file = file_path + "combined.csv"
+#file_path = input("Enter path to the folder of CSV files you would like to combine. This should be in the form /path/to/files/ \n")
+
+fieldMap = input("Which field map? [Options: Symmetric, A_in2mm, A_in1mm, A_out1mm, A_out2mm, A_out3mm, A_out4mm, Dipole3SameSC23, DipolePoint5RandSC23] \n")
+beamPass = input("Which beam pass? [Options: 1, 2, 3, 4, 5] \n")
+target = input("Which target? [Options: Optics1, Optics2, Optics3, LH2] \n")
+
+file_path = "output/" + str(fieldMap) + "/Pass" + str(beamPass) + "_" + str(target) +"/"
+
+output_file = file_path + str(fieldMap) +"_p" + str(beamPass) + "_" + str(target) + "_combined.csv"
+
+print(output_file)
 
 #Make a list of all files in a directory.
 file_list = os.listdir(file_path)
