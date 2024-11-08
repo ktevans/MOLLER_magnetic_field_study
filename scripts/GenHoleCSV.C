@@ -203,7 +203,6 @@ void GenHoleCSV(string infile, double rotation, const int cut = 0)
     for(int j=0; j<nholes; j++)
     {
       radial[j] = new TH1D(Form("r_%s", holeNames[j].c_str()),"gem_r_distribution;r[mm];Counts",600, 800, 1100);
-      r_canvas[j] = new TCanvas(Form("r_%s", holeNames[j].c_str()));
      } // end for loop
 
   } // end pass1
@@ -218,7 +217,6 @@ void GenHoleCSV(string infile, double rotation, const int cut = 0)
     for(int j=0; j<nholes; j++)
     {
       radial[j] = new TH1D(Form("r_%s", holeNames[j].c_str()),"gem_r_distribution;r[mm];Counts",800, 700, 1100);
-      r_canvas[j] = new TCanvas(Form("r_%s", holeNames[j].c_str()));
     }
 
   } // end pass 2
@@ -233,7 +231,6 @@ void GenHoleCSV(string infile, double rotation, const int cut = 0)
     for(int j=0; j<nholes; j++)
     {
       radial[j] = new TH1D(Form("r_%s", holeNames[j].c_str()),"gem_r_distribution;r[mm];Counts",600, 600, 900);
-      r_canvas[j] = new TCanvas(Form("r_%s", holeNames[j].c_str()));
     }
 
   } // end pass 3
@@ -248,7 +245,6 @@ void GenHoleCSV(string infile, double rotation, const int cut = 0)
     for(int j=0; j<nholes; j++)
     {
       radial[j] = new TH1D(Form("r_%s", holeNames[j].c_str()),"gem_r_distribution;r[mm];Counts",400, 600, 800);
-      r_canvas[j] = new TCanvas(Form("r_%s", holeNames[j].c_str()));
     }
 
   } // end pass 4
@@ -263,7 +259,6 @@ void GenHoleCSV(string infile, double rotation, const int cut = 0)
     for(int j=0; j<nholes; j++)
     {
       radial[j] = new TH1D(Form("r_%s", holeNames[j].c_str()),"gem_r_distribution;r[mm];Counts",800, 650, 1050);
-      r_canvas[j] = new TCanvas(Form("r_%s", holeNames[j].c_str()));
     }
 
   } // end pass 5
