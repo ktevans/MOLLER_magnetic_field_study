@@ -10,6 +10,7 @@
 #include <TH1.h>
 #include <TH2.h>
 #include <TCanvas.h>
+#include <TColor.h>
 #include <list>
 #include <vector>
 
@@ -184,7 +185,7 @@ void GenHoleCSV(string infile, double rotation, const int cut = 0)
   cout << fieldMap << endl;
   cout << pathName << endl;
 
-  // DOES THIS NEED TO CHANGE TO ACCOUNT FOR ROTATIONS???
+  // DOES THIS NEED TO CHANGE TO ACCOUNT FOR ROTATIONS??? Delete this since I don't actually use angle_lo or angle_up.
   for(int ii = 0; ii < nsectors; ii++){
 
     angle_lo[ii] = ii*2*pi/7;
@@ -267,6 +268,8 @@ void GenHoleCSV(string infile, double rotation, const int cut = 0)
   {
     cout << "Your root file is not properly named. Please make sure that it contains the energy pass in the form 'Pass#', where # is 1, 2, 3, 4, or 5." << endl;
   }
+
+  cout << passName << endl;
 
   // Plot with proper error bars???
   hist_rphi->Sumw2();
@@ -444,8 +447,8 @@ void GenHoleCSV(string infile, double rotation, const int cut = 0)
       double lower_r = func->GetParameter(1) - 2*func->GetParameter(2);
       double upper_r = func->GetParameter(1) + 2*func->GetParameter(2);
 
-      double lower_phi = func1->GetParameter(1) - 2*func1->GetParameter(2);
-      double upper_phi = func1->GetParameter(1) + 2*func1->GetParameter(2);
+      double lower_phi = func1->GetParameter(1) - 3*func1->GetParameter(2);
+      double upper_phi = func1->GetParameter(1) + 3*func1->GetParameter(2);
 
       double lower_rprime = func2->GetParameter(1) - 2*func2->GetParameter(2);
       double upper_rprime = func2->GetParameter(1) + 2*func2->GetParameter(2);
@@ -507,6 +510,17 @@ void GenHoleCSV(string infile, double rotation, const int cut = 0)
     } // end if for histogram null check
 
   } // end loop over holes
+
+  TCanvas* c4 = new TCanvas();
+  c4->cd();
+  gStyle->SetPalette(kRainBow);
+  for (int h = 0; h < nholes; h++)
+  {
+    if(!radial[h]) continue;
+    h2d_r_phi[h]->Draw("SAME PMC");
+  }
+  string rphiFile = pathName + fieldMap + "_" + passName + "_" + targetName + "_" + sector_rotation + "_rphi.pdf";
+  c4->SaveAs(rphiFile.c_str());
 
   // Name the output root file.
   string outfileName = pathName + fieldMap + "_" + passName + "_" + targetName + "_" + sector_rotation + "_plots.root";
