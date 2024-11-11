@@ -135,7 +135,7 @@ void GenHoleCSV(string infile, double rotation, const int cut = 0)
 
     rprime[j] = new TH1D(Form("rprime_%s", holeNames[j].c_str()),"rprime_distribution;r_prime;Counts",300, 0.02, 0.08);
 
-    h2d_r_phi[j] = new TH2D(Form("r_phi_%s", holeNames[j].c_str()),"r_phi_distribution;r[mm];phi[rad];Counts",500, 600, 1100, 200, 0, 2*pi);
+    h2d_r_phi[j] = new TH2D(Form("r_phi_%s", holeNames[j].c_str()),"r_phi_distribution;r[mm];phi[rad];Counts",500, 600, 1100, 600, 0, 2*pi);
 
     h2d_rprime_phi[j] = new TH2D(Form("rprime_phi_%s", holeNames[j].c_str()),"rprime_phi_distribution;r_prime;phi[rad];Counts", 500, 0 , 0.1, 200, 0, 2*pi);
 
@@ -186,12 +186,12 @@ void GenHoleCSV(string infile, double rotation, const int cut = 0)
   cout << pathName << endl;
 
   // DOES THIS NEED TO CHANGE TO ACCOUNT FOR ROTATIONS??? Delete this since I don't actually use angle_lo or angle_up.
-  for(int ii = 0; ii < nsectors; ii++){
+  //for(int ii = 0; ii < nsectors; ii++){
 
-    angle_lo[ii] = ii*2*pi/7;
-    angle_up[ii] = (ii+1)*2*pi/7;
+  //  angle_lo[ii] = ii*2*pi/7;
+  //  angle_up[ii] = (ii+1)*2*pi/7;
 
-  }
+  //}
 
   // Check the energy pass to make proper energy cut. Make sure that the input root file has the pass name in it in the form "Pass#" where # is 1, 2, 3, 4, or 5.
   if(infile.find("Pass1") != std::string::npos)
@@ -199,7 +199,7 @@ void GenHoleCSV(string infile, double rotation, const int cut = 0)
 
     energy_cut = 2200.;
     passName = "p1";
-    hist_rphi = new TH2D("hist_rphi", "GEM r-#phi Distribtuion", 600, 800, 1100, 500, 0, 7);
+    hist_rphi = new TH2D("hist_rphi", "GEM r-#phi Distribtuion", 600, 800, 1100, 700, 0, 7);
 
     for(int j=0; j<nholes; j++)
     {
@@ -213,7 +213,7 @@ void GenHoleCSV(string infile, double rotation, const int cut = 0)
 
     energy_cut = 4400.;
     passName = "p2";
-    hist_rphi = new TH2D("hist_rphi", "GEM r-#phi Distribtuion", 800, 700, 1100, 500, 0, 7);
+    hist_rphi = new TH2D("hist_rphi", "GEM r-#phi Distribtuion", 800, 700, 1100, 700, 0, 7);
 
     for(int j=0; j<nholes; j++)
     {
@@ -227,7 +227,7 @@ void GenHoleCSV(string infile, double rotation, const int cut = 0)
 
     energy_cut = 6600.;
     passName = "p3";
-    hist_rphi = new TH2D("hist_rphi", "GEM r-#phi Distribtuion", 600, 600, 900, 500, 0, 7);
+    hist_rphi = new TH2D("hist_rphi", "GEM r-#phi Distribtuion", 600, 600, 900, 700, 0, 7);
 
     for(int j=0; j<nholes; j++)
     {
@@ -241,7 +241,7 @@ void GenHoleCSV(string infile, double rotation, const int cut = 0)
 
     energy_cut = 8800.;
     passName = "p4";
-    hist_rphi = new TH2D("hist_rphi", "GEM r-#phi Distribtuion", 400, 600, 800, 500, 0, 7);
+    hist_rphi = new TH2D("hist_rphi", "GEM r-#phi Distribtuion", 400, 600, 800, 700, 0, 7);
 
     for(int j=0; j<nholes; j++)
     {
@@ -255,7 +255,7 @@ void GenHoleCSV(string infile, double rotation, const int cut = 0)
 
     energy_cut = 11000.;
     passName = "p5";
-    hist_rphi = new TH2D("hist_rphi", "GEM r-#phi Distribtuion", 800, 650, 1050, 500, 0, 7);
+    hist_rphi = new TH2D("hist_rphi", "GEM r-#phi Distribtuion", 800, 650, 1050, 700, 0, 7);
 
     for(int j=0; j<nholes; j++)
     {
@@ -389,18 +389,18 @@ void GenHoleCSV(string infile, double rotation, const int cut = 0)
 
         radial[ihole]->GetXaxis()->SetRangeUser(radial[ihole]->GetMean()-5*radial[ihole]->GetRMS(), radial[ihole]->GetMean()+5*radial[ihole]->GetRMS());
 
-        func = new TF1("func", "gaus",radial[ihole]->GetMean()-2.0*radial[ihole]->GetRMS(),radial[ihole]->GetMean()+2.0*radial[ihole]->GetRMS());
+        func = new TF1("func", "gaus",radial[ihole]->GetMean()-3.0*radial[ihole]->GetRMS(),radial[ihole]->GetMean()+3.0*radial[ihole]->GetRMS());
 
       }
 
       else
       {
 
-        radial[ihole]->GetXaxis()->SetRangeUser(radial[ihole]->GetMean()-2.5*radial[ihole]->GetRMS(), radial[ihole]->GetMean()+1.0*radial[ihole]->GetRMS());
+        radial[ihole]->GetXaxis()->SetRangeUser(radial[ihole]->GetMean()-3.0*radial[ihole]->GetRMS(), radial[ihole]->GetMean()+3.0*radial[ihole]->GetRMS());
 
-        rprime[ihole]->GetXaxis()->SetRangeUser(rprime[ihole]->GetMean()-2.5*rprime[ihole]->GetRMS(), rprime[ihole]->GetMean()+1.0*rprime[ihole]->GetRMS());
+        rprime[ihole]->GetXaxis()->SetRangeUser(rprime[ihole]->GetMean()-3.0*rprime[ihole]->GetRMS(), rprime[ihole]->GetMean()+3.0*rprime[ihole]->GetRMS());
 
-        func = new TF1("func", "gaus",radial[ihole]->GetMean()-2.5*radial[ihole]->GetRMS(),radial[ihole]->GetMean()+1.5*radial[ihole]->GetRMS());
+        func = new TF1("func", "gaus",radial[ihole]->GetMean()-3.0*radial[ihole]->GetRMS(),radial[ihole]->GetMean()+3.0*radial[ihole]->GetRMS());
 
       }
 
@@ -412,7 +412,7 @@ void GenHoleCSV(string infile, double rotation, const int cut = 0)
       for(int itr = 0; itr < 5; itr++)
       {
 
-        radial[ihole]->Fit(func, "RQ","",func->GetParameter(1)-2.0*func->GetParameter(2),func->GetParameter(1)+2.0*func->GetParameter(2));
+        radial[ihole]->Fit(func, "RQ","",func->GetParameter(1)-3.0*func->GetParameter(2),func->GetParameter(1)+3.0*func->GetParameter(2));
 
       }
 
@@ -426,35 +426,35 @@ void GenHoleCSV(string infile, double rotation, const int cut = 0)
       gPad->Modified(); gPad->Update();
 
       // Now, fit to r'
-      func2 = new TF1("func2", "gaus", rprime[ihole]->GetMean()-2.5*rprime[ihole]->GetRMS(), rprime[ihole]->GetMean()+1.0*rprime[ihole]->GetRMS());
+      func2 = new TF1("func2", "gaus", rprime[ihole]->GetMean()-3.0*rprime[ihole]->GetRMS(), rprime[ihole]->GetMean()+3.0*rprime[ihole]->GetRMS());
 
       for(int itr = 0; itr < 5; itr++)
       {
 
-        rprime[ihole]->Fit(func2, "RQ","",func2->GetParameter(1)-2.0*func2->GetParameter(2),func2->GetParameter(1)+2.0*func2->GetParameter(2));
+        rprime[ihole]->Fit(func2, "RQ","",func2->GetParameter(1)-3.0*func2->GetParameter(2),func2->GetParameter(1)+3.0*func2->GetParameter(2));
 
       }
 
       gPad->Modified(); gPad->Update();
 
       // Now, fit to phi'
-      func3 = new TF1("func3", "gaus", phiprime[ihole]->GetMean()-2.5*phiprime[ihole]->GetRMS(), phiprime[ihole]->GetMean()+1.0*phiprime[ihole]->GetRMS());
+      func3 = new TF1("func3", "gaus", phiprime[ihole]->GetMean()-3.0*phiprime[ihole]->GetRMS(), phiprime[ihole]->GetMean()+3.0*phiprime[ihole]->GetRMS());
       phiprime[ihole]->Fit(func3,"RQ");
 
       gPad->Modified(); gPad->Update();
 
       // Use the gaussian parameters to define bounds on our variables. This uses a 2-sigma cut around the mean for r, phi, r', and phi', but it may be better to use a 2.5-sigma or even 3-sigma cut.
-      double lower_r = func->GetParameter(1) - 2*func->GetParameter(2);
-      double upper_r = func->GetParameter(1) + 2*func->GetParameter(2);
+      double lower_r = func->GetParameter(1) - 3*func->GetParameter(2);
+      double upper_r = func->GetParameter(1) + 3*func->GetParameter(2);
 
       double lower_phi = func1->GetParameter(1) - 3*func1->GetParameter(2);
       double upper_phi = func1->GetParameter(1) + 3*func1->GetParameter(2);
 
-      double lower_rprime = func2->GetParameter(1) - 2*func2->GetParameter(2);
-      double upper_rprime = func2->GetParameter(1) + 2*func2->GetParameter(2);
+      double lower_rprime = func2->GetParameter(1) - 3*func2->GetParameter(2);
+      double upper_rprime = func2->GetParameter(1) + 3*func2->GetParameter(2);
 
-      double lower_phiprime = func3->GetParameter(1) - 2*func3->GetParameter(2);
-      double upper_phiprime = func3->GetParameter(1) + 2*func3->GetParameter(2);
+      double lower_phiprime = func3->GetParameter(1) - 3*func3->GetParameter(2);
+      double upper_phiprime = func3->GetParameter(1) + 3*func3->GetParameter(2);
 
       // This loops through the events again and plots within the bounds we found from the 1d fits, but code is repeated here. There should be a better way to do this.
       for(int j=0; j<nevents; j++)
@@ -511,17 +511,6 @@ void GenHoleCSV(string infile, double rotation, const int cut = 0)
 
   } // end loop over holes
 
-  TCanvas* c4 = new TCanvas();
-  c4->cd();
-  gStyle->SetPalette(kRainBow);
-  for (int h = 0; h < nholes; h++)
-  {
-    if(!radial[h]) continue;
-    h2d_r_phi[h]->Draw("SAME PMC");
-  }
-  string rphiFile = pathName + fieldMap + "_" + passName + "_" + targetName + "_" + sector_rotation + "_rphi.pdf";
-  c4->SaveAs(rphiFile.c_str());
-
   // Name the output root file.
   string outfileName = pathName + fieldMap + "_" + passName + "_" + targetName + "_" + sector_rotation + "_plots.root";
 
@@ -553,6 +542,18 @@ void GenHoleCSV(string infile, double rotation, const int cut = 0)
   hist_rphi->Write();
   hist_rrprime->Write();
   hist_phi_phiprime->Write();
+
+  TCanvas* c4 = new TCanvas();
+  c4->cd();
+  gStyle->SetPalette(kRainBow);
+  for (int h = 0; h < nholes; h++)
+  {
+    if(!radial[h]) continue;
+    h2d_r_phi[h]->Draw("SAME PMC");
+  }
+
+  string rphiFile = pathName + fieldMap + "_" + passName + "_" + targetName + "_" + sector_rotation + "_rphi.pdf";
+  c4->SaveAs(rphiFile.c_str());
 
   cout << "Plots have been sent to " << outfileName << endl;
 
