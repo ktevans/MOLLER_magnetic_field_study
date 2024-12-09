@@ -35,7 +35,7 @@ for hole in hole_list:
                 if hole in file:
                     single_hole_file_list.append(file)
 
-#print(single_hole_file_list)
+print(single_hole_file_list)
 
 #Combine data from all files in file_list into one data frame.
 #df_concat = pd.concat([pd.read_csv(file_path+f) for f in file_list], ignore_index=True)
