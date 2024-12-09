@@ -179,7 +179,7 @@ void GenHoleCSV(string infile, double rotation, const int cut = 0)
 
   // Name the path that the output CSV files will be sent to. Change this to match your volatile directory or your magnetic field directory.
 
-  string pathName = "/volatile/halla/moller12gev/ktevans1/rootfiles2024/MagFieldStudy/" + fieldMap +"/output/";
+  string pathName = "/w/halla-scshelf2102/moller12gev/ktevans/remoll/MOLLER_magnetic_field_study/output/"+ fieldMap + "/";
 
   cout << targetName << endl;
   cout << fieldMap << endl;
