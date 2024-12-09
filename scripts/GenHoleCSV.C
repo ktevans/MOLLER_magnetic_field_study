@@ -177,7 +177,7 @@ void GenHoleCSV(string infile, double rotation, const int cut = 0)
 
   // ^^^ Add more fieldmaps as needed
 
-  // Name the path that the output CSV files will be sent to. Change this to match your volatile directory.
+  // Name the path that the output CSV files will be sent to. Change this to match your volatile directory or your magnetic field directory.
 
   string pathName = "/volatile/halla/moller12gev/ktevans1/rootfiles2024/MagFieldStudy/" + fieldMap +"/output/";
 
@@ -299,7 +299,7 @@ void GenHoleCSV(string infile, double rotation, const int cut = 0)
     T1->GetEntry(j);
     int index_hole = -999;
 
-    rate = rate/200; // WHY ARE WE DIVIDING THE RATE????
+    //rate = rate/200; // WHY ARE WE DIVIDING THE RATE????
 
     if(sieve_r < 26.5) continue; // don't look at particles that go through the sieve inner bore
     double gem_k = sqrt(gem_px*gem_px + gem_py*gem_py + gem_pz*gem_pz + Me2);
@@ -409,12 +409,12 @@ void GenHoleCSV(string infile, double rotation, const int cut = 0)
       // "RQ" are the fit options. "R" says to use the range specified in the function range, and "Q" says to print in quiet mode, i.e., don't print out the fit parameters to your terminal while the script it running.
 
       // Fit gaussians iteratively.
-      for(int itr = 0; itr < 5; itr++)
-      {
+      //for(int itr = 0; itr < 2; itr++)
+      //{
 
-        radial[ihole]->Fit(func, "RQ","",func->GetParameter(1)-3.0*func->GetParameter(2),func->GetParameter(1)+3.0*func->GetParameter(2));
+      //radial[ihole]->Fit(func, "RQ","",func->GetParameter(1)-1.0*func->GetParameter(2),func->GetParameter(1)+1.0*func->GetParameter(2));
 
-      }
+      //}
 
       // Update your plot to include fit and fit stats.
       gPad->Modified(); gPad->Update();
@@ -444,9 +444,17 @@ void GenHoleCSV(string infile, double rotation, const int cut = 0)
       gPad->Modified(); gPad->Update();
 
       // Use the gaussian parameters to define bounds on our variables. This uses a 2-sigma cut around the mean for r, phi, r', and phi', but it may be better to use a 2.5-sigma or even 3-sigma cut.
-      double lower_r = func->GetParameter(1) - 3*func->GetParameter(2);
-      double upper_r = func->GetParameter(1) + 3*func->GetParameter(2);
 
+      double lower_r = 600.0;
+      double upper_r = 1300.0;
+      
+      if(func->GetParameter(1)>=500.0)
+      {
+        lower_r = func->GetParameter(1) - 3*func->GetParameter(2);
+        upper_r = func->GetParameter(1) + 3*func->GetParameter(2);
+	//printf("good r_mean!\n");
+      }
+      
       double lower_phi = func1->GetParameter(1) - 3*func1->GetParameter(2);
       double upper_phi = func1->GetParameter(1) + 3*func1->GetParameter(2);
 
@@ -496,7 +504,7 @@ void GenHoleCSV(string infile, double rotation, const int cut = 0)
           h2d_phiprime_phi[ihole]->Fill(phi_prime, gem_ph, rate);
         }
 
-        // Check that a hit matches all the conditions and then writ it to the CSV file.
+        // Check that a hit matches all the conditions and then write it to the CSV file.
         if((gem_r > lower_r && gem_r < upper_r) && (gem_ph > lower_phi && gem_ph < upper_phi) && (r_prime > lower_rprime && r_prime < upper_rprime) && (phi_prime > lower_phiprime && phi_prime < upper_phiprime))
         {
 
@@ -556,5 +564,6 @@ void GenHoleCSV(string infile, double rotation, const int cut = 0)
   c4->SaveAs(rphiFile.c_str());
 
   cout << "Plots have been sent to " << outfileName << endl;
+  cout << "Diagnostic plots have been sent to " << rphiFile.c_str() << endl;
 
 } // end main
