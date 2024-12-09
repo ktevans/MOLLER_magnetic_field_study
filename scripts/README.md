@@ -64,10 +64,16 @@ Detailed documentation: https://github.com/ktevans/MOLLER_magnetic_field_study/b
 
 ## HoleSelection.py
 
+Allows for manual sieve hole image selection. See documenation directory.
+
 ## OpticsReconstruction.py
+
+Optics reconstruction script. Needs detailed documentation.
 
 ## combineCSV.py
 
-## sieveGoleImageAnalysis.py
+The script will ask for input regarding the field map, target, and beam pass. Your responses will help the script read in the right files. It will print out a list of CSV files that it is combining and output a combined CSV file in the same folder.
+
+## sieveHoleImageAnalysis.py
 
 ## compareMeans.py
