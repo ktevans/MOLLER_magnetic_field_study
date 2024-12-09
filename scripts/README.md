@@ -60,6 +60,8 @@ GenHoleCSV("file.root",0.0)
 ```
 This will output a root file with all of the plots, a CSV file for each hole, and a PDF with an r vs phi plot of all the selected data.
 
+Detailed documentation: https://github.com/ktevans/MOLLER_magnetic_field_study/blob/fbbb445d879154b555193efd1bfb0138bc33e8b3/documentation/Documentation%20and%20Usage%20of%20Sieve%20Hole%20Automatic%20Selection%20Script-3.pdf
+
 ## HoleSelection.py
 
 ## OpticsReconstruction.py
