@@ -61,7 +61,7 @@ void SlimGeneral(TString infile)
 	  .Define("tg_vx","part.vx[part.trid==main_trid][0]").Define("tg_vy","part.vy[part.trid==main_trid][0]").Define("tg_vz","part.vz[part.trid==main_trid][0]")
 	  .Define("tg_trid","part.trid[part.trid==main_trid][0]").Define("tg_pid","part.pid[part.trid==main_trid][0]");
 
-    df_small.Snapshot("newT",outFileName,{ "sieve_r", "sieve_ph", "main_r", "main_ph", "main_trid", "main_x", "main_y", "main_px", "main_py", "main_pz",
+    df_small.Snapshot("newT",outFileName,{ "sieve_r", "main_r", "main_ph", "main_trid", "main_x", "main_y", "main_px", "main_py", "main_pz",
                                                    "rate" , "gem1_r", "gem1_ph", "sieve_ph", "sieve_px", "sieve_py", "sieve_pz", "gem1_x", "gem1_y", "gem4_x", 
                                                    "gem4_y","gem1_px", "gem1_py", "gem1_pz", "sieve_x", "sieve_y", "tg_th", "tg_ph", "tg_p", "tg_vz"});
 }

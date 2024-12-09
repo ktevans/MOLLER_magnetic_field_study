@@ -379,7 +379,7 @@ void GenHoleCSV(string infile, double rotation, const int cut = 0)
       csvFile.open(fileName, std::ofstream::app);
 
       // List the CSV column headers.
-      csvFile << "tg_th" << "," << "tg_ph" << "," << "tg_p" << "," << "tg_vz" << "," << "sieve_r" << "," << "gem_r" << "," << "r_prime" << "," << "gem_ph" << "," << "phi_prime" << endl;
+      csvFile << "hole_id" << "," << "tg_th" << "," << "tg_ph" << "," << "tg_p" << "," << "tg_vz" << "," << "sieve_r" << "," << "gem_r" << "," << "r_prime" << "," << "gem_ph" << "," << "phi_prime" << endl;
 
       // First, fit to r.
 
@@ -448,7 +448,7 @@ void GenHoleCSV(string infile, double rotation, const int cut = 0)
       double lower_r = 600.0;
       double upper_r = 1300.0;
       
-      if(func->GetParameter(1)>=500.0)
+      if(func->GetParameter(1)>=500.0 && func->GetParameter(2)<=20.0)
       {
         lower_r = func->GetParameter(1) - 3*func->GetParameter(2);
         upper_r = func->GetParameter(1) + 3*func->GetParameter(2);
@@ -505,10 +505,10 @@ void GenHoleCSV(string infile, double rotation, const int cut = 0)
         }
 
         // Check that a hit matches all the conditions and then write it to the CSV file.
-        if((gem_r > lower_r && gem_r < upper_r) && (gem_ph > lower_phi && gem_ph < upper_phi) && (r_prime > lower_rprime && r_prime < upper_rprime) && (phi_prime > lower_phiprime && phi_prime < upper_phiprime))
+        if((gem_r > lower_r && gem_r < upper_r) || ((gem_ph > lower_phi && gem_ph < upper_phi) && (r_prime > lower_rprime && r_prime < upper_rprime) && (phi_prime > lower_phiprime && phi_prime < upper_phiprime)))
         {
 
-          csvFile << tg_th << "," << tg_ph << "," << tg_p << "," << tg_vz << "," << sieve_r << "," << gem_r << "," << r_prime << "," << gem_ph << "," << phi_prime << endl;
+          csvFile << holeNames[ihole]<< "," << tg_th << "," << tg_ph << "," << tg_p << "," << tg_vz << "," << sieve_r << "," << gem_r << "," << r_prime << "," << gem_ph << "," << phi_prime << endl;
 
         }
 
